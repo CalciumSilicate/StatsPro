@@ -1,2 +1,3 @@
 # StatsPro
-修改，记录，显示计分板与统计信息等功能
+
+Edit, record, statistics and display scoreboard
