@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Final
 
 PLUGIN_ID: Final[str] = "stats_pro"
-PLUGIN_VERSION: Final[str] = "2.0.2"
+PLUGIN_VERSION: Final[str] = "2.0.3"
 PLUGIN_AUTHOR: Final[str] = "CalciumSilicate"
 
 COMMAND_PREFIX: Final[str] = "!!sp"

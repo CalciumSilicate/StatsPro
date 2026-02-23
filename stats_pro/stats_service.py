@@ -12,7 +12,14 @@ from .cache import StatsCache, get_stats_cache
 from .config import PluginConfig
 from .constants import PLUGIN_ID
 from .models import PlayerStats
-from .utils import ensure_prefix, is_bot_player, load_uuid_mapping, strip_prefix
+from .utils import (
+    build_uuid_mapping_from_stats,
+    ensure_prefix,
+    is_bot_player,
+    load_uuid_mapping,
+    save_uuid_mapping,
+    strip_prefix,
+)
 
 if TYPE_CHECKING:
     pass
@@ -31,8 +38,27 @@ class StatsService:
         self._reload_uuid_mapping()
 
     def _reload_uuid_mapping(self) -> None:
-        """重新加载 UUID 映射"""
-        self._uuid_mapping = load_uuid_mapping(self.config.paths.uuid_file)
+        """
+        重新加载 UUID 映射
+        优先级：
+        1. 从 stats 文件夹 + usercache.json 自动构建
+        2. 合并手动配置的 uuid.json（用于覆盖或补充）
+        """
+        # 自动从 stats 文件夹和 usercache.json 构建映射
+        auto_mapping = build_uuid_mapping_from_stats(
+            self.config.paths.stats_path,
+            self.config.paths.usercache_file,
+        )
+        
+        # 加载手动配置的映射（可以用于覆盖自动检测的名称）
+        manual_mapping = load_uuid_mapping(self.config.paths.uuid_file)
+        
+        # 合并：手动配置优先
+        self._uuid_mapping = {**auto_mapping, **manual_mapping}
+        
+        # 保存合并后的映射，方便用户查看和编辑
+        if self._uuid_mapping:
+            save_uuid_mapping(self.config.paths.uuid_file, self._uuid_mapping)
 
     @property
     def uuid_mapping(self) -> dict[str, str]:

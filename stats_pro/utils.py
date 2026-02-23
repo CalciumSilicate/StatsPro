@@ -140,6 +140,64 @@ def load_uuid_mapping(uuid_file: Path) -> dict[str, str]:
         return {}
 
 
+def load_usercache(usercache_file: Path) -> dict[str, str]:
+    """
+    从服务器的 usercache.json 加载 UUID 映射
+    usercache.json 格式: [{"name": "PlayerName", "uuid": "xxx-xxx", "expiresOn": "..."}, ...]
+    返回: {name: uuid}
+    """
+    if not usercache_file.exists():
+        return {}
+    try:
+        with open(usercache_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        
+        mapping = {}
+        for entry in data:
+            if "name" in entry and "uuid" in entry:
+                mapping[entry["name"]] = entry["uuid"]
+        return mapping
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def build_uuid_mapping_from_stats(stats_path: Path, usercache_file: Path) -> dict[str, str]:
+    """
+    构建 UUID 映射，优先使用 usercache.json，
+    对于 usercache 中没有的 UUID，使用 UUID 本身作为临时名称
+    
+    Args:
+        stats_path: stats 文件夹路径
+        usercache_file: usercache.json 文件路径
+    
+    Returns:
+        {name: uuid} 映射
+    """
+    mapping = {}
+    
+    # 首先从 usercache.json 加载
+    usercache_mapping = load_usercache(usercache_file)
+    # 反转为 {uuid: name}
+    uuid_to_name_map = {v: k for k, v in usercache_mapping.items()}
+    
+    # 遍历 stats 文件夹中的所有 json 文件
+    if stats_path.exists():
+        for stats_file in stats_path.glob("*.json"):
+            uuid = stats_file.stem  # 文件名（不含扩展名）就是 UUID
+            
+            if uuid in uuid_to_name_map:
+                # usercache 中有这个 UUID 的名称
+                name = uuid_to_name_map[uuid]
+            else:
+                # usercache 中没有，使用 UUID 作为临时名称
+                # 去掉 UUID 中的横线，取前8位作为显示名
+                name = uuid.replace("-", "")[:8]
+            
+            mapping[name] = uuid
+    
+    return mapping
+
+
 def save_uuid_mapping(uuid_file: Path, mapping: dict[str, str]) -> None:
     """保存 UUID 映射"""
     uuid_file.parent.mkdir(parents=True, exist_ok=True)
