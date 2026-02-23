@@ -427,7 +427,9 @@ class CommandHandler:
             item=item,
             display_name=display_name,
         )
-        self.scoreboard_service.set_display(source.get_server())
+        self.scoreboard_service.set_display(
+            source.get_server(), self.scoreboard_service.current_display
+        )
 
         display = display_name or f"§e{category}§r.§b{item}§r"
         self._reply(source, t("scoreboard.created", name=display))

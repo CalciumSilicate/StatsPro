@@ -75,6 +75,9 @@ class ScoreboardService:
 
         self._enable_command_feedback(server)
 
+        # 更新当前显示的计分板名称
+        self.current_display = inner_name
+
         return ranking
 
     def set_display(
