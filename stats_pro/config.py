@@ -13,6 +13,7 @@ from typing import Any
 from .constants import (
     COPPER_TOOLS,
     DATA_VERSION_COPPER,
+    DATA_VERSION_FUNCTION_FOLDER,
     DATA_VERSION_NETHERITE,
     DEFAULT_TOOLS,
     NETHERITE_TOOLS,
@@ -99,6 +100,13 @@ class PluginConfig:
         if self._detected_data_version is None:
             return False
         return self._detected_data_version > DATA_VERSION_COPPER
+
+    @property
+    def use_function_folder(self) -> bool:
+        """是否使用 function 文件夹名 (DataVersion > 3953)，否则用 functions"""
+        if self._detected_data_version is None:
+            return True  # 默认使用新版
+        return self._detected_data_version > DATA_VERSION_FUNCTION_FOLDER
 
     def update_data_version(self, version: int) -> None:
         """更新检测到的 DataVersion"""

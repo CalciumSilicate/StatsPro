@@ -59,6 +59,7 @@ COPPER_TOOLS: Final[tuple[str, ...]] = (
 
 # DataVersion 阈值
 DATA_VERSION_NETHERITE: Final[int] = 2504  # 1.16+ (20w06a)
+DATA_VERSION_FUNCTION_FOLDER: Final[int] = 3953  # 使用 function 而非 functions
 DATA_VERSION_COPPER: Final[int] = 4534     # 有 copper 工具的版本
 
 DEFAULT_TOOLS: Final[tuple[str, ...]] = (

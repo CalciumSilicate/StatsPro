@@ -242,8 +242,10 @@ class ScoreboardService:
     def _create_datapack(self, preset: Preset) -> None:
         """创建数据包"""
         datapack_path = self._get_datapack_path(preset)
-        function_path = datapack_path / "data" / "statspro" / "function"
-        tags_path = datapack_path / "data" / "minecraft" / "tags" / "function"
+        # DataVersion > 3953 使用 function，否则使用 functions
+        folder_name = "function" if self.config.use_function_folder else "functions"
+        function_path = datapack_path / "data" / "statspro" / folder_name
+        tags_path = datapack_path / "data" / "minecraft" / "tags" / folder_name
 
         if datapack_path.exists():
             shutil.rmtree(datapack_path)
