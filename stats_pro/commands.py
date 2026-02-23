@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable
 
+from mcdreforged.api.all import CommandSource
 from mcdreforged.api.command import (
-    CommandSource,
     GreedyText,
     Integer,
     Literal,
