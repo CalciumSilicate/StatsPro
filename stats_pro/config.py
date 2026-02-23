@@ -11,6 +11,9 @@ from pathlib import Path
 from typing import Any
 
 from .constants import (
+    COPPER_TOOLS,
+    DATA_VERSION_COPPER,
+    DATA_VERSION_NETHERITE,
     DEFAULT_TOOLS,
     NETHERITE_TOOLS,
     PLUGIN_ID,
@@ -72,16 +75,36 @@ class PluginConfig:
     """插件配置"""
 
     paths: PathConfig = field(default_factory=PathConfig)
-    is_1_16_plus: bool = True
     permission_required: Permission = Permission.HELPER
 
     # 运行时数据
     presets: dict[str, Preset] = field(default_factory=dict)
     gen_records: dict[str, dict[str, GenRecord]] = field(default_factory=dict)
     merge_config: MergeConfig = field(default_factory=MergeConfig)
+    _detected_data_version: int | None = None
 
     def __post_init__(self) -> None:
         self._init_gen_records()
+
+    @property
+    def has_netherite(self) -> bool:
+        """是否支持下界合金工具 (DataVersion > 2504)"""
+        if self._detected_data_version is None:
+            return True  # 默认支持
+        return self._detected_data_version > DATA_VERSION_NETHERITE
+
+    @property
+    def has_copper(self) -> bool:
+        """是否支持铜工具 (DataVersion > 4534)"""
+        if self._detected_data_version is None:
+            return False
+        return self._detected_data_version > DATA_VERSION_COPPER
+
+    def update_data_version(self, version: int) -> None:
+        """更新检测到的 DataVersion"""
+        if self._detected_data_version is None or version > self._detected_data_version:
+            self._detected_data_version = version
+            logger.info(f"Detected DataVersion: {version} (netherite={self.has_netherite}, copper={self.has_copper})")
 
     def _init_gen_records(self) -> None:
         """初始化生成记录"""
@@ -139,8 +162,6 @@ class PluginConfig:
         """加载默认配置"""
         default_items: dict[str, dict[str, str]] = {"used": {}}
         tools = list(DEFAULT_TOOLS)
-        if self.is_1_16_plus:
-            tools.extend(NETHERITE_TOOLS)
 
         for tool in tools:
             default_items["used"][tool] = ""
@@ -152,6 +173,27 @@ class PluginConfig:
             prefix_true="dt",
             items=default_items,
         )
+
+    def update_default_preset_tools(self) -> None:
+        """根据 DataVersion 更新默认预设的工具列表"""
+        if "default" not in self.presets:
+            return
+
+        preset = self.presets["default"]
+        if "used" not in preset.items:
+            preset.items["used"] = {}
+
+        # 添加下界合金工具
+        if self.has_netherite:
+            for tool in NETHERITE_TOOLS:
+                if tool not in preset.items["used"]:
+                    preset.items["used"][tool] = ""
+
+        # 添加铜工具
+        if self.has_copper:
+            for tool in COPPER_TOOLS:
+                if tool not in preset.items["used"]:
+                    preset.items["used"][tool] = ""
 
     def _ensure_directories(self) -> None:
         """确保必要的目录存在"""

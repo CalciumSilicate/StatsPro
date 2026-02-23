@@ -49,6 +49,18 @@ NETHERITE_TOOLS: Final[tuple[str, ...]] = (
     "netherite_hoe",
 )
 
+COPPER_TOOLS: Final[tuple[str, ...]] = (
+    "copper_axe",
+    "copper_sword",
+    "copper_pickaxe",
+    "copper_shovel",
+    "copper_hoe",
+)
+
+# DataVersion 阈值
+DATA_VERSION_NETHERITE: Final[int] = 2504  # 1.16+ (20w06a)
+DATA_VERSION_COPPER: Final[int] = 4534     # 有 copper 工具的版本
+
 DEFAULT_TOOLS: Final[tuple[str, ...]] = (
     "diamond_axe",
     "diamond_sword",

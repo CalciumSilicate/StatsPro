@@ -76,8 +76,15 @@ class StatsService:
                         file_path, name, uuid
                     )
                     self._cache.set_player_stats(name, self._players_stats[name].stats)
+
+                    # 检测并更新 DataVersion
+                    if self._players_stats[name].data_version is not None:
+                        self.config.update_data_version(self._players_stats[name].data_version)
                 except (json.JSONDecodeError, OSError) as e:
                     logger.warning(f"Failed to load stats for {name}: {e}")
+
+        # 根据检测到的版本更新默认预设工具
+        self.config.update_default_preset_tools()
 
         return self._players_stats
 
