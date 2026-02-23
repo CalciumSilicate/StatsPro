@@ -1,0 +1,38 @@
+{
+    "presuppositions": {
+        "default": {
+            "name": "§c§l挖掘总榜§r",
+            "prefix_dummy": "d",
+            "prefix_true": "dt",
+            "list": {
+                "used": {
+                    "diamond_axe": "da",
+                    "diamond_sword": "ds",
+                    "diamond_pickaxe": "dp",
+                    "diamond_shovel": "dsh",
+                    "diamond_hoe": "dh",
+                    "iron_axe": "ia",
+                    "iron_sword": "is",
+                    "iron_pickaxe": "ip",
+                    "iron_shovel": "ish",
+                    "iron_hoe": "ih",
+                    "netherite_axe": "na",
+                    "netherite_sword": "ns",
+                    "netherite_pickaxe": "np",
+                    "netherite_shovel": "nsh",
+                    "netherite_hoe": "nh",
+                    "shears": "she"
+                }
+            }
+        }
+    },
+    "gen_list": {
+        "sum": {},
+        "record": {},
+        "minus": {}
+    },
+    "merge_list": {
+        "input": [],
+        "output": ""
+    }
+}

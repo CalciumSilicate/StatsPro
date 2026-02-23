@@ -1,0 +1,2 @@
+# StatsPro Dependencies
+mcdreforged>=2.0.0
