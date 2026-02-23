@@ -14,6 +14,7 @@ from .constants import (
     COPPER_TOOLS,
     DATA_VERSION_COPPER,
     DATA_VERSION_FUNCTION_FOLDER,
+    DATA_VERSION_GAMERULE_SNAKE,
     DATA_VERSION_NETHERITE,
     DEFAULT_TOOLS,
     NETHERITE_TOOLS,
@@ -107,6 +108,17 @@ class PluginConfig:
         if self._detected_data_version is None:
             return True  # 默认使用新版
         return self._detected_data_version > DATA_VERSION_FUNCTION_FOLDER
+
+    @property
+    def use_snake_case_gamerule(self) -> bool:
+        """是否使用 send_command_feedback (DataVersion > 4659)，否则用 sendCommandFeedback"""
+        if self._detected_data_version is None:
+            return True  # 默认使用新版
+        return self._detected_data_version > DATA_VERSION_GAMERULE_SNAKE
+
+    def get_command_feedback_rule(self) -> str:
+        """获取 gamerule 名称"""
+        return "send_command_feedback" if self.use_snake_case_gamerule else "sendCommandFeedback"
 
     def update_data_version(self, version: int) -> None:
         """更新检测到的 DataVersion"""

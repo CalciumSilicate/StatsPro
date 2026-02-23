@@ -29,6 +29,16 @@ class ScoreboardService:
         self.stats_service = stats_service
         self.current_display: str = SCOREBOARD_NAME
 
+    def _disable_command_feedback(self, server: ServerInterface) -> None:
+        """禁用命令反馈"""
+        rule = self.config.get_command_feedback_rule()
+        server.execute(f"gamerule {rule} false")
+
+    def _enable_command_feedback(self, server: ServerInterface) -> None:
+        """启用命令反馈"""
+        rule = self.config.get_command_feedback_rule()
+        server.execute(f"gamerule {rule} true")
+
     def create_scoreboard(
         self,
         server: ServerInterface,
@@ -48,6 +58,8 @@ class ScoreboardService:
             include_bots=include_bots,
         )
 
+        self._disable_command_feedback(server)
+
         server.execute(f"scoreboard objectives remove {inner_name}")
 
         display_json = json.dumps({"text": display_name})
@@ -60,6 +72,8 @@ class ScoreboardService:
             server.execute(
                 f"scoreboard players set {name} {inner_name} {value}"
             )
+
+        self._enable_command_feedback(server)
 
         return ranking
 
@@ -92,10 +106,12 @@ class ScoreboardService:
         commands = self._generate_scoreboard_commands(preset)
         all_scores: dict[str, int] = {}
 
+        self._disable_command_feedback(server)
+
         for category, items in preset.items.items():
             for item, abbr in items.items():
                 inner_name = f"{preset.prefix_true}_{abbr}"
-                scores = self.create_scoreboard(
+                scores = self._create_scoreboard_no_feedback(
                     server,
                     category=category,
                     item=item,
@@ -114,10 +130,44 @@ class ScoreboardService:
                 f"{preset.prefix_dummy}_total {total}"
             )
 
+        self._enable_command_feedback(server)
+
         self._create_datapack(preset)
         server.execute("reload")
 
         return all_scores
+
+    def _create_scoreboard_no_feedback(
+        self,
+        server: ServerInterface,
+        category: str,
+        item: str,
+        inner_name: str,
+        include_bots: bool = False,
+    ) -> dict[str, int]:
+        """创建计分板（不控制 command feedback，用于批量操作内部调用）"""
+        display_name = f"§e{category}§r.§b{item}§r"
+
+        ranking = self.stats_service.get_ranking(
+            category=category,
+            item=item,
+            include_bots=include_bots,
+        )
+
+        server.execute(f"scoreboard objectives remove {inner_name}")
+
+        display_json = json.dumps({"text": display_name})
+        server.execute(
+            f"scoreboard objectives add {inner_name} "
+            f"minecraft.{category}:minecraft.{item} {display_json}"
+        )
+
+        for name, value in ranking.items():
+            server.execute(
+                f"scoreboard players set {name} {inner_name} {value}"
+            )
+
+        return ranking
 
     def remove_sum_scoreboard(
         self, server: ServerInterface, preset: Preset
@@ -125,8 +175,12 @@ class ScoreboardService:
         """移除加和计分板"""
         commands = self._generate_scoreboard_commands(preset)
 
+        self._disable_command_feedback(server)
+
         for cmd in commands["removing"]:
             server.execute(cmd)
+
+        self._enable_command_feedback(server)
 
         datapack_path = self._get_datapack_path(preset)
         if datapack_path.exists():

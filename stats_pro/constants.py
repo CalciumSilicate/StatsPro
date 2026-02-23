@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Final
 
 PLUGIN_ID: Final[str] = "stats_pro"
-PLUGIN_VERSION: Final[str] = "2.0.0"
+PLUGIN_VERSION: Final[str] = "2.0.1"
 PLUGIN_AUTHOR: Final[str] = "CalciumSilicate"
 
 COMMAND_PREFIX: Final[str] = "!!sp"
@@ -61,6 +61,7 @@ COPPER_TOOLS: Final[tuple[str, ...]] = (
 DATA_VERSION_NETHERITE: Final[int] = 2504  # 1.16+ (20w06a)
 DATA_VERSION_FUNCTION_FOLDER: Final[int] = 3953  # 使用 function 而非 functions
 DATA_VERSION_COPPER: Final[int] = 4534     # 有 copper 工具的版本
+DATA_VERSION_GAMERULE_SNAKE: Final[int] = 4659  # gamerule 使用 send_command_feedback
 
 DEFAULT_TOOLS: Final[tuple[str, ...]] = (
     "diamond_axe",
