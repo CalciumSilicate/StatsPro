@@ -16,7 +16,7 @@ from mcdreforged.api.command import (
 )
 from mcdreforged.api.rtext import RAction, RText, RTextList
 
-from .constants import COMMAND_PREFIX, LEGACY_PREFIXES, PLUGIN_ID, Permission
+from .constants import COMMAND_PREFIX, LEGACY_PREFIXES, PLUGIN_ID, PLUGIN_VERSION, Permission
 from .i18n import t
 from .utils import MessageBuilder, clickable_text, strip_prefix
 
@@ -356,7 +356,7 @@ class CommandHandler:
         """获取帮助页面"""
         p = COMMAND_PREFIX
         return [
-            f"""------§rStatsPro v2.0.0 第§c§l1§r页------
+            f"""------§rStatsPro v{PLUGIN_VERSION} 第§c§l1§r页------
 §d§l{p}§r§b help§r §8[页码]§r 查看帮助信息
 §d§l{p}§r§b scoreboard§r §5<类别>§r §6<物品>§r §7[显示名]§r 创建计分板
 §d§l{p}§r§b save§r 保存服务器
@@ -365,7 +365,7 @@ class CommandHandler:
   {p} query §c<玩家>§r §5<类别>§r §6<物品>§r 查询分数
   {p} query cls §c<玩家>§r §5<类别>§r §7[数量]§r 查询类别排行
   {p} query item §c<玩家>§r §6<物品>§r §7[数量]§r 查询物品排行""",
-            f"""------§rStatsPro v2.0.0 第§c§l2§r页------
+            f"""------§rStatsPro v{PLUGIN_VERSION} 第§c§l2§r页------
 §d§l{p}§r§b rank§r 查看排行榜
   {p} rank §5<类别>§r §6<物品>§r §7[数量]§r 查询排行
   {p} rank cls §5<类别>§r §7[数量]§r 类别排行
@@ -375,7 +375,7 @@ class CommandHandler:
   {p} sum create §a<预设名>§r 创建预设
   {p} sum add/del §a<预设名>§r §5<类别>§r §6<物品>§r 添加/删除
   {p} sum list / view §a[预设名]§r 列表/详情""",
-            f"""------§rStatsPro v2.0.0 第§c§l3§r页------
+            f"""------§rStatsPro v{PLUGIN_VERSION} 第§c§l3§r页------
 §d§l{p}§r§b gen§r 生成文件
   {p} gen sum/record §7[备注]§r 生成汇总/记录
   {p} gen minus §e<模式>§r §6<时间1>§r §6<时间2>§r 差值
