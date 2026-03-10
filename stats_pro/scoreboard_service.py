@@ -270,7 +270,7 @@ class ScoreboardService:
 
         def cmd(target: str, operation: str, source: str) -> str:
             return (
-                f"execute as @a run scoreboard players operation "
+                f"execute as @a[tag=!bot] run scoreboard players operation "
                 f"@s {target} {operation} @s {source}"
             )
 
