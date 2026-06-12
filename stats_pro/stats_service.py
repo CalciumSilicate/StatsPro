@@ -17,6 +17,7 @@ from .utils import (
     ensure_prefix,
     is_bot_player,
     load_uuid_mapping,
+    merge_uuid_mappings,
     save_uuid_mapping,
     strip_prefix,
 )
@@ -53,8 +54,8 @@ class StatsService:
         # 加载手动配置的映射（可以用于覆盖自动检测的名称）
         manual_mapping = load_uuid_mapping(self.config.paths.uuid_file)
         
-        # 合并：手动配置优先
-        self._uuid_mapping = {**auto_mapping, **manual_mapping}
+        # 合并：手动配置优先，并按 UUID 去重，避免短 ID 与真实名并存
+        self._uuid_mapping = merge_uuid_mappings(auto_mapping, manual_mapping)
         
         # 保存合并后的映射，方便用户查看和编辑
         if self._uuid_mapping:

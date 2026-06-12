@@ -41,6 +41,16 @@ def is_bot_player(name: str) -> bool:
     return any(keyword in name_lower for keyword in BOT_KEYWORDS)
 
 
+def normalize_uuid(value: str) -> str:
+    """标准化 UUID，便于比较不同格式的 UUID。"""
+    return value.replace("-", "").lower()
+
+
+def is_uuid_fallback_name(name: str, uuid: str) -> bool:
+    """判断名称是否为自动生成的 UUID 前 8 位临时名。"""
+    return name.lower() == normalize_uuid(uuid)[:8]
+
+
 def generate_abbreviation(item: str) -> str:
     """生成物品缩写"""
     if "_" in item:
@@ -177,25 +187,70 @@ def build_uuid_mapping_from_stats(stats_path: Path, usercache_file: Path) -> dic
     
     # 首先从 usercache.json 加载
     usercache_mapping = load_usercache(usercache_file)
-    # 反转为 {uuid: name}
-    uuid_to_name_map = {v: k for k, v in usercache_mapping.items()}
+    # 反转为 {uuid: name}，比较时忽略横线与大小写差异
+    uuid_to_name_map = {normalize_uuid(v): k for k, v in usercache_mapping.items()}
     
     # 遍历 stats 文件夹中的所有 json 文件
     if stats_path.exists():
         for stats_file in stats_path.glob("*.json"):
             uuid = stats_file.stem  # 文件名（不含扩展名）就是 UUID
             
-            if uuid in uuid_to_name_map:
+            if normalize_uuid(uuid) in uuid_to_name_map:
                 # usercache 中有这个 UUID 的名称
-                name = uuid_to_name_map[uuid]
+                name = uuid_to_name_map[normalize_uuid(uuid)]
             else:
                 # usercache 中没有，使用 UUID 作为临时名称
                 # 去掉 UUID 中的横线，取前8位作为显示名
-                name = uuid.replace("-", "")[:8]
+                name = normalize_uuid(uuid)[:8]
             
             mapping[name] = uuid
     
     return mapping
+
+
+def merge_uuid_mappings(
+    auto_mapping: dict[str, str],
+    manual_mapping: dict[str, str],
+) -> dict[str, str]:
+    """
+    合并 UUID 映射并按 UUID 去重。
+
+    手动配置优先，但自动生成的 UUID 前 8 位临时名不会覆盖真实名称。
+    这样用户补全真实名称后，旧的短 ID 条目会被自动清理。
+    """
+    selected: dict[str, tuple[str, str, bool]] = {}
+
+    def put(name: str, uuid: str, is_manual: bool) -> None:
+        uuid_key = normalize_uuid(uuid)
+        if not uuid_key:
+            return
+
+        current = selected.get(uuid_key)
+        candidate_is_fallback = is_uuid_fallback_name(name, uuid)
+        if current is None:
+            selected[uuid_key] = (name, uuid, is_manual)
+            return
+
+        current_name, current_uuid, current_is_manual = current
+        current_is_fallback = is_uuid_fallback_name(current_name, current_uuid)
+
+        if current_is_fallback and not candidate_is_fallback:
+            selected[uuid_key] = (name, uuid, is_manual)
+            return
+
+        if candidate_is_fallback and not current_is_fallback:
+            return
+
+        if is_manual and not current_is_manual:
+            selected[uuid_key] = (name, uuid, is_manual)
+
+    for name, uuid in auto_mapping.items():
+        put(name, uuid, False)
+
+    for name, uuid in manual_mapping.items():
+        put(name, uuid, True)
+
+    return {name: uuid for name, uuid, _ in selected.values()}
 
 
 def save_uuid_mapping(uuid_file: Path, mapping: dict[str, str]) -> None:
