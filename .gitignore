@@ -54,3 +54,7 @@ Thumbs.db
 # Old plugin file
 StatsPro.py
 *.mcdr
+
+# Explicit MCDR package output
+dist/*.mcdr
+scripts
