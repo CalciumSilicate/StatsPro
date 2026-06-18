@@ -45,8 +45,18 @@ class PathConfig:
         return self.server_path / "world"
 
     @property
-    def stats_path(self) -> Path:
+    def current_stats_path(self) -> Path:
+        return self.world_path / "players" / "stats"
+
+    @property
+    def legacy_stats_path(self) -> Path:
         return self.world_path / "stats"
+
+    @property
+    def stats_path(self) -> Path:
+        if self.current_stats_path.exists() or not self.legacy_stats_path.exists():
+            return self.current_stats_path
+        return self.legacy_stats_path
 
     @property
     def datapacks_path(self) -> Path:

@@ -103,6 +103,14 @@ stats_pro/
 
 配置文件位于 `config/StatsPro/config.json`：
 
+统计数据读取路径会优先使用 Minecraft Java Edition 26.1+ 的新版结构：
+
+- `<MCDR根目录>/server/world/players/stats`
+
+如果新版路径不存在，会回退到旧版结构：
+
+- `<MCDR根目录>/server/world/stats`
+
 ```json
 {
     "presuppositions": {
